@@ -45,6 +45,11 @@ debug("Test");
 world = {};
 
 //XXX: TODO Make this prettier!
+var marker = document.createElement('img');
+marker.src = 'https://cdn2.bulbagarden.net/upload/3/31/Spr_GS_Ethan.png';
+var imgBack = document.createElement('img');
+imgBack.src = 'https://cdn2.bulbagarden.net/upload/archive/a/a4/20100701221703%21Ecruteak_City_Landscape.png';
+
 function drawCircle(context,entity) {
     with(context) {
         beginPath();                
@@ -52,28 +57,36 @@ function drawCircle(context,entity) {
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        // fillStyle = entity["colour"];
+        // strokeStyle = fillStyle;
+        // arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);
+        drawImage(marker, x, y, entity['width'], entity['height']);
         stroke();                                
     }
 }
 
 function prepEntity(entity) {
-    if (!entity["colour"]) {
-        entity["colour"] = "#FF0000";
-    }
-    if (!entity["radius"]) {
-        entity["radius"] = 50;
-    }
+    // if (!entity["colour"]) {
+    //     entity["colour"] = "#FF0000";
+    // }
+    // if (!entity["radius"]) {
+    //     entity["radius"] = 50;
+    // }
+    if (!entity['width']) {
+         entity['width'] = 56;
+     }
+     if (!entity['height']) {
+         entity['height'] = 56;
+     }
     return entity;
 }
 
 function clearFrame() {
     with(context) {
 	moveTo(0,0);
-	fillStyle = "#000";
-	fillRect(0,0,W,H);
+	// fillStyle = "#000";
+	// fillRect(0,0,W,H);
+    drawImage(imgBack, 0, 0, W, H);
     }
 
 }
@@ -123,9 +136,11 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
+    // drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
+    socket.send( JSON.stringify( {entity: data} ) )
 }
+
 var counter = 0;
 function addEntityWithoutName(data) {
     var name = "X"+(counter++)%100;
@@ -231,21 +246,25 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    // addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName( {'x': x, 'y': y, 'width': 112, 'height': 112} );
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    // addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName( {'x': x, 'y': y, 'width': 112, 'height': 112} );
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
-                          'radius':10});
+    // addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    //                       'radius':10});
+    addEntityWithoutName( {'x':x,'y':y} );
 });
 
 
 function update() {
-    drawFrame();
+    // drawFrame();
+    renderFrame();
 }
 
 
@@ -254,6 +273,10 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
+        fetch( new Request('/world') )
+        .then( response => response.json() )
+        .then( data => world = data )
+        .catch(console.error);
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
@@ -261,7 +284,11 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
-            //XXX: TODO What are you going to do here?            
+            //XXX: TODO What are you going to do here?
+            obj = JSON.parse(msg.data);
+            for (key in obj) {
+                world[key] = obj[key];
+            }
         } catch (e) {
             alert("socket on message: " + e);
         }
