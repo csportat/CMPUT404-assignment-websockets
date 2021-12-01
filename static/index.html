@@ -46,9 +46,9 @@ world = {};
 
 //XXX: TODO Make this prettier!
 var marker = document.createElement('img');
-marker.src = 'https://cdn2.bulbagarden.net/upload/3/31/Spr_GS_Ethan.png';
+marker.src = 'Spr_GS_Ethan.png';
 var imgBack = document.createElement('img');
-imgBack.src = 'https://cdn2.bulbagarden.net/upload/archive/a/a4/20100701221703%21Ecruteak_City_Landscape.png';
+imgBack.src = '20100701221703!Ecruteak_City_Landscape.png';
 
 function drawCircle(context,entity) {
     with(context) {
@@ -73,20 +73,20 @@ function prepEntity(entity) {
     //     entity["radius"] = 50;
     // }
     if (!entity['width']) {
-         entity['width'] = 56;
-     }
-     if (!entity['height']) {
-         entity['height'] = 56;
-     }
+        entity['width'] = 56;
+    }
+    if (!entity['height']) {
+        entity['height'] = 56;
+    }
     return entity;
 }
 
 function clearFrame() {
     with(context) {
-	moveTo(0,0);
-	// fillStyle = "#000";
-	// fillRect(0,0,W,H);
-    drawImage(imgBack, 0, 0, W, H);
+        moveTo(0,0);
+        // fillStyle = "#000";
+        // fillRect(0,0,W,H);
+        drawImage(imgBack, 0, 0, W, H);
     }
 
 }
@@ -136,7 +136,7 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    // drawNextFrame(); // (but should we?)
+    drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
     socket.send( JSON.stringify( {entity: data} ) )
 }
@@ -263,8 +263,8 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 
 function update() {
-    // drawFrame();
-    renderFrame();
+    drawFrame();
+    // renderFrame();
 }
 
 
@@ -286,9 +286,10 @@ function wsSetup() {
             debug("WebSocket Recv:" + msg.data);
             //XXX: TODO What are you going to do here?
             obj = JSON.parse(msg.data);
-            for (key in obj) {
+            for (let key in obj) {
                 world[key] = obj[key];
             }
+            drawNextFrame();
         } catch (e) {
             alert("socket on message: " + e);
         }
