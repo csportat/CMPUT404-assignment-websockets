@@ -79,8 +79,8 @@ def send_all(msg):
     for client in clients:
         client.put(msg)
 
-def send_all_json(obj):
-    send_all( json.dumps(obj) )
+# def send_all_json(obj):
+#     send_all( json.dumps(obj) )
 
 def set_listener( entity, data ):
     ''' do something with the update ! '''
@@ -105,9 +105,9 @@ def read_ws(ws,client):
             print("WS RECV: %s" % msg)
             if (msg is not None):
                 packet = json.loads(msg)
-                # for entity, data in packet.items():
-                #     myWorld.set(entity, data)
-                send_all_json(packet)
+                for entity, data in packet.items():
+                    myWorld.set(entity, data)
+                # send_all_json(packet)
             else:
                 break
     except Exception as e:

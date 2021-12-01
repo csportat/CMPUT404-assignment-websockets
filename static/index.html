@@ -136,9 +136,12 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
+    // drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
-    socket.send( JSON.stringify( {entity: data} ) )
+    var obj = {}
+    obj[entity] = data
+    // socket.send( JSON.stringify( {entity: data} ) )
+    socket.send( JSON.stringify(obj) )
 }
 
 var counter = 0;
@@ -263,8 +266,8 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 
 function update() {
-    drawFrame();
-    // renderFrame();
+    // drawFrame();
+    renderFrame();
 }
 
 
@@ -289,7 +292,7 @@ function wsSetup() {
             for (let key in obj) {
                 world[key] = obj[key];
             }
-            drawNextFrame();
+            // drawNextFrame();
         } catch (e) {
             alert("socket on message: " + e);
         }
